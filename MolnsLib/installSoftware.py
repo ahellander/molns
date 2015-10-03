@@ -56,8 +56,8 @@ class InstallSW:
                     
         [
          "sudo rm -rf /usr/local/molnsutil;sudo mkdir -p /usr/local/molnsutil;sudo chown ubuntu /usr/local/molnsutil",
-         "cd /usr/local/ && git clone https://github.com/Molns/molnsutil.git",
-         "cd /usr/local/molnsutil && sudo python setup.py install"
+         "cd /usr/local/ && git clone https://github.com/briandrawert/molnsutil.git",
+         "cd /usr/local/molnsutil && git checkout molnsutil_state && sudo python setup.py install"
         ],
 
         # So the workers can mount the controller via SSHfs

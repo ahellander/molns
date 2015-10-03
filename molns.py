@@ -82,6 +82,45 @@ class MOLNSbase():
             raise MOLNSException("controller '{0}' is not initialized, use 'molns controller setup {0}' to initialize the controller.".format(controller_name))
         return controller_obj
 
+
+class MOLNSService(MOLNSbase):
+    @classmethod
+    def start_service(cls,args,config):
+        """ Start a service """
+        if len(args)<2:
+            raise MOLNSException("USAGE: molns service start provider name \n"\
+                                                "\tToo few arguments.")
+        provider = args[0]
+        service_name = args[1]
+        if service_name == "celery":
+            start_celery_service(cls,config)
+
+
+        def start_celery_service(self, config):
+            logging.debug("MOLNSController.start_controller(args={0})".format(args))
+            controller_obj = cls._get_controllerobj(args, config)
+            if controller_obj is None: return
+            # Check if any instances are assigned to this controller
+            instance_list = config.get_all_instances(controller_id=controller_obj.id)
+            # Check if they are running or stopped (if so, resume them)
+            inst = None
+            if len(instance_list) > 0:
+                for i in instance_list:
+                    status = controller_obj.get_instance_status(i)
+                    if status == controller_obj.STATUS_RUNNING:
+                        print "controller already running at {0}".format(i.ip_address)
+                        return
+                    elif status == controller_obj.STATUS_STOPPED:
+                        print "Resuming instance at {0}".format(i.ip_address)
+                        controller_obj.resume_instance(i)
+                        inst = i
+                        break
+            if inst is None:
+                # Start a new instance
+                print "Starting new controller"
+                inst = controller_obj.start_instance()
+
+
 class MOLNSController(MOLNSbase):
     @classmethod
     def controller_export(cls, args, config):
@@ -1181,7 +1220,8 @@ class MOLNSProvider(MOLNSbase):
             print "USAGE: molns provider delete name"
             return
         config.delete_object(name=args[0], kind='Provider')
-###############################################
+
+   ###############################################
 
 class MOLNSInstances(MOLNSbase):
     @classmethod
@@ -1451,6 +1491,13 @@ COMMAND_LIST = [
             Command('import',{'filename.json':None},
                 function=MOLNSProvider.provider_import),
         ]),
+                
+        # Commands to interact with Infrastructure-Providers
+        SubCommand('service',[
+                    Command('start',{'provider':None, 'name':None},
+                            function=MOLNSService.start_service),
+                    ]),
+                
         # Commands to interact with the instance DB
         SubCommand('instancedb',[
             Command('list', {},
