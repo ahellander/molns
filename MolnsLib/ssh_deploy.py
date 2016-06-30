@@ -358,7 +358,7 @@ class SSHDeploy:
             self.exec_command("sudo nginx")
 
             print "Checking out latest development version"
-            self.exec_command("cd /usr/local/stochss && git fetch && git checkout saas_ui_6_6_2016 && git pull origin saas_ui_6_6_2016")
+            self.exec_command("cd /usr/local/stochss && git fetch && git checkout saas && git pull origin saas")
 
             print "Configuring StochSS"
             admin_token = uuid.uuid4()
