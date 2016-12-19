@@ -86,8 +86,12 @@ class InstallSW:
         
         # pyurdme
         [   "sudo rm -rf /usr/local/pyurdme;sudo mkdir -p /usr/local/pyurdme;sudo chown ubuntu /usr/local/pyurdme",
-            "cd /usr/local/ && git clone https://github.com/MOLNs/pyurdme.git",
-            #"cd /usr/local/pyurdme && git checkout develop",  # for development only
+            "cd /usr/local/ && git clone https://github.com/Aratz/pyurdme.git",
+            "cd /usr/local/pyurdme && git checkout recompilation",  # for development only
+            "cd /usr/local/pyurdme && make -f pyurdme/urdme/build/Makefile.nsm2 URDME_ROOT=pyurdme/urdme",
+            "mkdir -p /usr/local/pyurdme/pyurdme/urdme/bin",
+            "cp /usr/local/pyurdme/pyurdme/urdme/{build/nsm2/solver.nsm2,bin}",
+            "rm -r /usr/local/pyurdme/pyurdme/urdme/build/nsm2",
             "cp /usr/local/pyurdme/pyurdme/data/three.js_templates/js/* .ipython/profile_default/static/custom/",
             "source /usr/local/pyurdme/pyurdme_init && python -c 'import pyurdme'",
         ],
