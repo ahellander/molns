@@ -39,6 +39,7 @@ class InstallSW:
         "sudo pip install pyzmq --upgrade",
         "sudo pip install dill cloud pygments",
         "sudo pip install tornado Jinja2",
+        "sudo pip install retrying",
                   
         # Molnsutil
         [
