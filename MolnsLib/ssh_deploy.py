@@ -9,6 +9,7 @@ import time
 import uuid
 import webbrowser
 import urllib2
+import ssl
 
 class SSHDeployException(Exception):
     pass
@@ -20,7 +21,7 @@ class SSHDeploy:
     DEFAULT_STOCHSS_PORT = 1443
     DEFAULT_INTERNAL_STOCHSS_PORT = 8080
     DEFAULT_GAE_ADMIN_PORT = 8000
-    DEFAULT_PRIVATE_NOTEBOOK_PORT = 8081
+    DEFAULT_PRIVATE_NOTEBOOK_PORT = 8090
     DEFAULT_PUBLIC_NOTEBOOK_PORT = 443
     DEFAULT_PRIVATE_WEBSERVER_PORT = 8001
     DEFAULT_PUBLIC_WEBSERVER_PORT = 80
@@ -151,6 +152,8 @@ class SSHDeploy:
         config["provider_type"] = self.config.type
         config["bucket_name"] = "molns_storage_{1}_{0}".format(self.get_cluster_id(), self.provider_name)
         config["credentials"] = self.config.get_config_credentials()
+        # Only used for OpenStack, Keystone auth API version (2.0 or 3.0)
+        config["auth_version"] = self.config["auth_version"]
         s3_config_file.write(json.dumps(config))
         s3_config_file.close()
         sftp.close()
@@ -188,7 +191,7 @@ class SSHDeploy:
     def _get_ipython_client_file(self):
         sftp = self.ssh.open_sftp()
         engine_file = sftp.file(self.profile_dir_server + 'security/ipcontroller-client.json', 'r')
-        engine_file.prefetch()
+        engine_file.prefetch(file_size=None)
         file_data = engine_file.read()
         engine_file.close()
         sftp.close()
@@ -204,7 +207,7 @@ class SSHDeploy:
     def _get_ipython_engine_file(self):
         sftp = self.ssh.open_sftp()
         engine_file = sftp.file(self.profile_dir_server + 'security/ipcontroller-engine.json', 'r')
-        engine_file.prefetch()
+        engine_file.prefetch(file_size=None)
         file_data = engine_file.read()
         engine_file.close()
         sftp.close()
@@ -328,7 +331,6 @@ class SSHDeploy:
                 buff = string.replace(buff, '###LISTEN_PORT###', str(port))
                 buff = string.replace(buff, '###SSL_CERT###', str(ssl_cert))
                 buff = string.replace(buff, '###SSL_CERT_KEY###', str(ssl_key))
-                print buff
                 web_file.write(buff)
                 web_file.close()
             self.exec_command("sudo chown root /tmp/nginx.conf")
@@ -336,27 +338,39 @@ class SSHDeploy:
             print "Starting Nginx"
             self.exec_command("sudo nginx")
 
-            print "Modifying StochSS to not open a webbrowser (TODO: move to install)"
-            self.exec_command("sed -i 's/webbrowser.open_new(stochss_url)/pass/' /usr/local/stochss/run.ubuntu.sh")
+            print "Checking out latest development version"
+            self.exec_command("cd /usr/local/stochss && git fetch && git checkout saas && git pull origin saas")
 
-            print "Starting StochSS"
-            self.exec_command("cd /usr/local/stochss/ && screen -d -m ./run.ubuntu.sh")
-            print "Waiting for StochSS to become available:"
-            stochss_url = "https://{0}/".format(ip_address)
-            while True:
-                try:
-                    req = urllib2.urlopen(stochss_url)
-                    break
-                except Exception as e:
-                    #sys.stdout.write("{0}".format(e))
-                    sys.stdout.write(".")
-                    sys.stdout.flush()
-                    time.sleep(1)
-            print "Success!"
             print "Configuring StochSS"
             admin_token = uuid.uuid4()
             create_and_exchange_admin_token = "python /usr/local/stochss/generate_admin_token.py {0}".format(admin_token)
             self.exec_command(create_and_exchange_admin_token)
+
+            print "Starting StochSS"
+            self.exec_command("cd /usr/local/stochss/ && screen -d -m ./run.ubuntu.sh --no_browser -t {0} -a {1}".format(admin_token, ip_address))
+
+            stochss_url = "https://{0}:{1}/".format(ip_address,port)
+            print "Waiting for StochSS to become available at {0}".format(stochss_url)
+
+            cnt=0;cnt_max=60
+            while cnt<cnt_max:
+                cnt+=1
+                try:
+                    try:
+                        # works only for Python >= 2.7.9 
+                        context = ssl._create_unverified_context()
+                        req = urllib2.urlopen(stochss_url, context=context)
+                        break
+                    except:
+                        # in python < 2.7.9 thre is no verification of the certs
+                        req = urllib2.urlopen(stochss_url)
+                        break
+                except Exception as e:
+            #        sys.stdout.write("{0}".format(e))
+                    sys.stdout.write(".")
+                    sys.stdout.flush()
+                    time.sleep(1)
+            print "Success!"
             time.sleep(1)
             stochss_url = "{0}login?secret_key={1}".format(stochss_url, admin_token)
             print "StochSS available: {0}".format(stochss_url)
@@ -397,6 +411,10 @@ class SSHDeploy:
             self.create_engine_config()
             self.exec_command("source /usr/local/pyurdme/pyurdme_init; screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(ip_address, self.profile, self.ipython_port), '\n')
             # Start one ipengine per processor
+
+            import time
+            time.sleep(10)
+            
             num_procs = self.get_number_processors()
             num_engines = num_procs - 2
             for _ in range(num_engines):

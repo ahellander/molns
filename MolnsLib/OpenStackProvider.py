@@ -3,6 +3,9 @@ import sys
 import time
 import logging
 from novaclient import client as novaclient
+from keystoneauth1 import loading
+from keystoneauth1 import session
+
 from collections import OrderedDict
 import collections
 import installSoftware
@@ -49,6 +52,12 @@ class OpenStackProvider(OpenStackBase):
         {'q':'Name of Floating IP Pool (leave empty if only one possible pool)', 'default':None, 'ask':True}),
     ('nova_version',
         {'q':'Enter the version of the OpenStack NOVA API', 'default':"2", 'ask':True}),
+    ('auth_version',
+      {'q':'Enter the version of the OpenStack KeyStone API', 'default':"2", 'ask':True}),
+    ('os_user_domain_name',
+      {'q':'OpenStack user domain name', 'default':os.environ.get('OS_USER_DOMAIN_NAME'), 'ask':True}),
+    ('os_project_domain_name',
+      {'q':'OpenStack project domain name', 'default':os.environ.get('OS_PROJECT_DOMAIN_NAME'), 'ask':True}),
     ('key_name',
         {'q':'OpenStack Key Pair name', 'default':OpenStackProvider_default_key_name(), 'ask':True}),
     ('group_name',
@@ -107,7 +116,13 @@ class OpenStackProvider(OpenStackBase):
             raise ProviderException("ssh_key_file '{0}' already exists".format(self.config['key_name']))
 
         self._connect()
-        new_key = self.nova.keypairs.create(name=self.config['key_name'])
+        print self.nova.servers.list()
+
+        try:
+            new_key = self.nova.keypairs.create(name=self.config['key_name'])
+        except Exception,e:
+            print "Failed to create new ssh-key: {0}".format(e)
+            raise
         #with open(ssh_key_file, 'w') as fd:
         with os.fdopen(os.open(ssh_key_file, os.O_WRONLY | os.O_CREAT, 0600), 'w') as fd:
             fd.write(new_key.private_key)
@@ -191,13 +206,27 @@ class OpenStackProvider(OpenStackBase):
         if self.connected: return
         creds = {}
         creds['username'] = self.config['nova_username']
-        creds['api_key'] = self.config['nova_password']
+        creds['password'] = self.config['nova_password']
         creds['auth_url'] = self.config['nova_auth_url']
-        creds['project_id'] = self.config['nova_project_id']
+        # New version of the nova API uses "project_name" instead of "project_id"
+        creds['project_name'] = self.config['nova_project_id']
+        # Keystone V3 requires these parameters as well.
+        creds['user_domain_name'] = self.config['os_user_domain_name']
+        creds['project_domain_name'] = self.config['os_project_domain_name']
+
+        #print creds
+        loader = loading.get_plugin_loader('password')
+        auth = loader.load_from_options(**creds)
+        sess = session.Session(auth=auth)
+
         if 'region_name' in self.config and self.config['region_name'] is not None:
             creds['region_name'] = self.config['region_name']
-        self.nova = novaclient.Client(self.config['nova_version'], **creds)
-        self.connected = True
+        try:
+            self.nova = novaclient.Client(self.config['nova_version'], session=sess,region_name=self.config['region_name'], insecure=True)
+            self.connected = True
+        except Exception,e:
+            print "Failed to establish client connection: {0}".format(str(e))
+            logging.error("Failed to establish client connection: {0}".format(str(e)))
 
     def _get_image_name(self):
         return "MOLNS_{0}_{1}_{2}".format(self.PROVIDER_TYPE, self.name, int(time.time()))
