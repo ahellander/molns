@@ -153,7 +153,10 @@ class SSHDeploy:
         config["bucket_name"] = "molns_storage_{1}_{0}".format(self.get_cluster_id(), self.provider_name)
         config["credentials"] = self.config.get_config_credentials()
         # Only used for OpenStack, Keystone auth API version (2.0 or 3.0)
-        config["auth_version"] = self.config["auth_version"]
+        try: 
+            config["auth_version"] = self.config["auth_version"]
+        except:
+            pass
         s3_config_file.write(json.dumps(config))
         s3_config_file.close()
         sftp.close()
@@ -396,15 +399,35 @@ class SSHDeploy:
             
             # Setup symlink to the shared scratch space
             self.exec_command("sudo mkdir -p /mnt/molnsshared")
-            self.exec_command("sudo chown ubuntu /mnt/molnsshared")
-            self.exec_command("test -e {0} && sudo rm {0} ; sudo ln -s /mnt/molnsshared {0}".format('/home/ubuntu/shared'))
+            #self.exec_command("sudo chown ubuntu /mnt/molnsshared")
+            #self.exec_command("test -e {0} && sudo rm {0} ; sudo ln -s /mnt/molnsshared {0}".format('/home/ubuntu/shared'))
+            
+# SSH mount the controller on each engine
+            sshfs_host_ip = "192.168.10.22"
+            remote_file_name='.ssh/id_dsa'
+            controller_ssh_keyfile = ".molns/ssc-hpc2n/andreash_molns_sshkey_589d99b7.pem"
+            with open(controller_ssh_keyfile) as fd:
+                sftp = self.ssh.open_sftp()
+                controller_keyfile = sftp.file(remote_file_name, 'w')
+                buff = fd.read()
+                print "Read {0} bytes from file {1}".format(len(buff), controller_ssh_keyfile)
+                controller_keyfile.write(buff)
+                controller_keyfile.close()
+                print "Remote file {0} has {1} bytes".format(remote_file_name, sftp.stat(remote_file_name).st_size)
+                sftp.close()
+            self.exec_command("chmod 0600 {0}".format(remote_file_name))
+            self.exec_command("mkdir -p /home/ubuntu/shared")
+            self.exec_command("sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/home/ubuntu/shared /home/ubuntu/shared".format(sshfs_host_ip))
+
             #
             self.exec_command("sudo mkdir -p {0}".format(self.DEFAULT_PYURDME_TEMPDIR))
             self.exec_command("sudo chown ubuntu {0}".format(self.DEFAULT_PYURDME_TEMPDIR))
             #
-            #self.exec_command("cd /usr/local/molnsutil && git pull && sudo python setup.py install")
+            
+            #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout fix && sudo python setup.py install")
             self.exec_command("mkdir -p .molns")
             self.create_s3_config()
+
 
             self.exec_command("ipython profile create {0}".format(self.profile))
             self.create_ipython_config(ip_address, notebook_password)
@@ -416,7 +439,7 @@ class SSHDeploy:
             time.sleep(10)
             
             num_procs = self.get_number_processors()
-            num_engines = num_procs - 2
+            num_engines = 0
             for _ in range(num_engines):
                 self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipengine --profile={0} --debug".format(self.profile, self.ipengine_env))
             self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipython notebook --profile={0}".format(self.profile, self.ipengine_env))
@@ -473,6 +496,7 @@ class SSHDeploy:
             
             
             # SSH mount the controller on each engine
+            sshfs_host_ip = "192.168.10.22"
             remote_file_name='.ssh/id_dsa'
             with open(controller_ssh_keyfile) as fd:
                 sftp = self.ssh.open_sftp()
@@ -485,10 +509,10 @@ class SSHDeploy:
                 sftp.close()
             self.exec_command("chmod 0600 {0}".format(remote_file_name))
             self.exec_command("mkdir -p /home/ubuntu/shared")
-            self.exec_command("sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
+            self.exec_command("sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/home/ubuntu/shared /home/ubuntu/shared".format(sshfs_host_ip))
 
             # Update the Molnsutil package: TODO remove when molnsutil is stable
-            #self.exec_command("cd /usr/local/molnsutil && git pull && sudo python setup.py install")
+            #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout fix && sudo python setup.py install")
 
             self.exec_command("ipython profile create {0}".format(self.profile))
             self.create_engine_config()
