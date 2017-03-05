@@ -399,8 +399,8 @@ class SSHDeploy:
             
             # Setup symlink to the shared scratch space
             self.exec_command("sudo mkdir -p /mnt/molnsshared")
-            #self.exec_command("sudo chown ubuntu /mnt/molnsshared")
-            #self.exec_command("test -e {0} && sudo rm {0} ; sudo ln -s /mnt/molnsshared {0}".format('/home/ubuntu/shared'))
+            self.exec_command("sudo chown ubuntu /mnt/molnsshared")
+            self.exec_command("test -e {0} && sudo rm {0} ; sudo ln -s /mnt/molnsshared {0}".format('/home/ubuntu/shared'))
             
 # SSH mount the controller on each engine
             sshfs_host_ip = "192.168.10.22"
@@ -417,7 +417,7 @@ class SSHDeploy:
                 sftp.close()
             self.exec_command("chmod 0600 {0}".format(remote_file_name))
             self.exec_command("mkdir -p /home/ubuntu/shared")
-            self.exec_command("sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/home/ubuntu/shared /home/ubuntu/shared".format(sshfs_host_ip))
+            #self.exec_command("sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/home/ubuntu/shared /home/ubuntu/shared".format(ip_address))
 
             #
             self.exec_command("sudo mkdir -p {0}".format(self.DEFAULT_PYURDME_TEMPDIR))
@@ -509,7 +509,7 @@ class SSHDeploy:
                 sftp.close()
             self.exec_command("chmod 0600 {0}".format(remote_file_name))
             self.exec_command("mkdir -p /home/ubuntu/shared")
-            self.exec_command("sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/home/ubuntu/shared /home/ubuntu/shared".format(sshfs_host_ip))
+            self.exec_command("sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/home/ubuntu/shared /home/ubuntu/shared".format(ip_address))
 
             # Update the Molnsutil package: TODO remove when molnsutil is stable
             #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout fix && sudo python setup.py install")
