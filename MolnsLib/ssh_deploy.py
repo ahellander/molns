@@ -402,27 +402,10 @@ class SSHDeploy:
             self.exec_command("sudo chown ubuntu /mnt/molnsshared")
             self.exec_command("test -e {0} && sudo rm {0} ; sudo ln -s /mnt/molnsshared {0}".format('/home/ubuntu/shared'))
             
-# SSH mount the controller on each engine
-            sshfs_host_ip = "192.168.10.22"
-            remote_file_name='.ssh/id_dsa'
-            controller_ssh_keyfile = ".molns/ssc-hpc2n/andreash_molns_sshkey_589d99b7.pem"
-            with open(controller_ssh_keyfile) as fd:
-                sftp = self.ssh.open_sftp()
-                controller_keyfile = sftp.file(remote_file_name, 'w')
-                buff = fd.read()
-                print "Read {0} bytes from file {1}".format(len(buff), controller_ssh_keyfile)
-                controller_keyfile.write(buff)
-                controller_keyfile.close()
-                print "Remote file {0} has {1} bytes".format(remote_file_name, sftp.stat(remote_file_name).st_size)
-                sftp.close()
-            self.exec_command("chmod 0600 {0}".format(remote_file_name))
-            self.exec_command("mkdir -p /home/ubuntu/shared")
-            #self.exec_command("sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/home/ubuntu/shared /home/ubuntu/shared".format(ip_address))
-
-            #
+            
             self.exec_command("sudo mkdir -p {0}".format(self.DEFAULT_PYURDME_TEMPDIR))
             self.exec_command("sudo chown ubuntu {0}".format(self.DEFAULT_PYURDME_TEMPDIR))
-            #
+            
             
             #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout fix && sudo python setup.py install")
             self.exec_command("mkdir -p .molns")
@@ -496,7 +479,8 @@ class SSHDeploy:
             
             
             # SSH mount the controller on each engine
-            sshfs_host_ip = "192.168.10.22"
+            #sshfs_host_ip = "192.168.10.22"
+            
             remote_file_name='.ssh/id_dsa'
             with open(controller_ssh_keyfile) as fd:
                 sftp = self.ssh.open_sftp()
@@ -507,9 +491,10 @@ class SSHDeploy:
                 controller_keyfile.close()
                 print "Remote file {0} has {1} bytes".format(remote_file_name, sftp.stat(remote_file_name).st_size)
                 sftp.close()
+            
             self.exec_command("chmod 0600 {0}".format(remote_file_name))
             self.exec_command("mkdir -p /home/ubuntu/shared")
-            self.exec_command("sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/home/ubuntu/shared /home/ubuntu/shared".format(ip_address))
+            self.exec_command("sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
 
             # Update the Molnsutil package: TODO remove when molnsutil is stable
             #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout fix && sudo python setup.py install")
