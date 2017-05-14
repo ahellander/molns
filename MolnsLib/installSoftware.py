@@ -87,8 +87,8 @@ class InstallSW:
         
         # pyurdme
         [   "sudo rm -rf /usr/local/pyurdme;sudo mkdir -p /usr/local/pyurdme;sudo chown ubuntu /usr/local/pyurdme",
-            "cd /usr/local/ && git clone https://github.com/Aratz/pyurdme.git",
-            "cd /usr/local/pyurdme && git checkout recompilation",  # for development only
+            "cd /usr/local/ && git clone https://github.com/ahellander/pyurdme.git",
+            "cd /usr/local/pyurdme && git checkout rdsim_recompilation",  # for development only
             "cd /usr/local/pyurdme && make -f pyurdme/urdme/build/Makefile.nsm2 URDME_ROOT=pyurdme/urdme",
             "mkdir -p /usr/local/pyurdme/pyurdme/urdme/bin",
             "cp /usr/local/pyurdme/pyurdme/urdme/{build/nsm2/solver.nsm2,bin}",
@@ -96,7 +96,7 @@ class InstallSW:
             "cp /usr/local/pyurdme/pyurdme/data/three.js_templates/js/* .ipython/profile_default/static/custom/",
             "source /usr/local/pyurdme/pyurdme_init && python -c 'import pyurdme'",
         ],
-         
+                    
         # example notebooks
         [  "rm -rf MOLNS_notebooks;git clone https://github.com/Molns/MOLNS_notebooks.git",
             "cp MOLNS_notebooks/*.ipynb .;rm -rf MOLNS_notebooks;",
@@ -107,7 +107,6 @@ class InstallSW:
         #"sudo apt-get -y remove python-scipy",
         "sudo pip install --upgrade scipy",
         "sudo pip install --upgrade numpy",
-        
         "sudo pip install jsonschema jsonpointer",  #redo this install to be sure it has not been removed.
 
         ## Install StochSS and GillesPy
@@ -121,10 +120,9 @@ class InstallSW:
         "cd /usr/local/ && git clone --recursive https://github.com/StochSS/stochss.git",
         "cd /usr/local/stochss && git checkout saas",
         "cd /usr/local/stochss/ && ./run.ubuntu.sh --install --yy",
-        "sudo STOCHSS_HOME=/usr/local/stochss/ pip install https://github.com/briandrawert/GillesPy/tarball/master/",
+        "sudo STOCHSS_HOME=/usr/local/stochss/ pip install https://github.com/ahellander/gillespy/tarball/issue21/",
         "python -c 'import gillespy'"
         ],
-
                     
         "sync",  # This is critial for some infrastructures.
     ]
