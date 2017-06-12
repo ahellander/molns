@@ -58,12 +58,12 @@ class InstallSW:
         [
          "sudo rm -rf /usr/local/molnsutil;sudo mkdir -p /usr/local/molnsutil;sudo chown ubuntu /usr/local/molnsutil",
          "cd /usr/local/ && git clone https://github.com/Molns/molnsutil.git",
-         "cd /usr/local/molnsutil && sudo python setup.py install"
+         "cd /usr/local/molnsutil && git checkout issue30 && sudo python setup.py install"
         ],
 
         # So the workers can mount the controller via SSHfs
         [   "sudo apt-get -y install sshfs",
-            "sudo gpasswd -a ubuntu fuse",
+         #  "sudo gpasswd -a ubuntu fuse",
             "echo 'ServerAliveInterval 60' >> /home/ubuntu/.ssh/config",
         ],
                     

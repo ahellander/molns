@@ -293,7 +293,8 @@ class SSHDeploy:
             self.exec_command("sudo chown ubuntu /usr/local/molns_webroot")
             self.exec_command("git clone https://github.com/Molns/MOLNS_web_landing_page.git /usr/local/molns_webroot")
             self.exec_multi_command("cd /usr/local/molns_webroot; python -m SimpleHTTPServer {0} > ~/.molns_webserver.log 2>&1 &".format(self.DEFAULT_PRIVATE_WEBSERVER_PORT), '\n')
-            self.exec_command("sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_WEBSERVER_PORT,self.DEFAULT_PRIVATE_WEBSERVER_PORT))
+            self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_WEBSERVER_PORT,self.DEFAULT_PRIVATE_WEBSERVER_PORT))
+            #self.exec_command("sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_WEBSERVER_PORT,self.DEFAULT_PRIVATE_WEBSERVER_PORT))
             self.ssh.close()
             print "Deploying MOLNs webserver"
             url = "http://{0}/".format(ip_address)
@@ -407,7 +408,9 @@ class SSHDeploy:
             self.exec_command("sudo chown ubuntu {0}".format(self.DEFAULT_PYURDME_TEMPDIR))
             
             
-            #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout fix && sudo python setup.py install")
+            self.exec_command("cd /usr/local/molnsutil && git pull && git checkout issue30 && sudo python setup.py install")
+            self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
+
             self.exec_command("mkdir -p .molns")
             self.create_s3_config()
 
@@ -426,7 +429,8 @@ class SSHDeploy:
             for _ in range(num_engines):
                 self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipengine --profile={0} --debug".format(self.profile, self.ipengine_env))
             self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipython notebook --profile={0}".format(self.profile, self.ipengine_env))
-            self.exec_command("sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
+            self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
+            #self.exec_command("sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
             self.ssh.close()
         except Exception as e:
             print "Failed: {0}\t{1}:{2}".format(e, ip_address, self.ssh_endpoint)
@@ -479,7 +483,6 @@ class SSHDeploy:
             
             
             # SSH mount the controller on each engine
-            #sshfs_host_ip = "192.168.10.22"
             
             remote_file_name='.ssh/id_dsa'
             with open(controller_ssh_keyfile) as fd:
@@ -494,10 +497,11 @@ class SSHDeploy:
             
             self.exec_command("chmod 0600 {0}".format(remote_file_name))
             self.exec_command("mkdir -p /home/ubuntu/shared")
-            self.exec_command("sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
+            self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
 
             # Update the Molnsutil package: TODO remove when molnsutil is stable
-            #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout fix && sudo python setup.py install")
+            self.exec_command("cd /usr/local/molnsutil && git pull && git checkout issue30 && sudo python setup.py install")
+            self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
 
             self.exec_command("ipython profile create {0}".format(self.profile))
             self.create_engine_config()
