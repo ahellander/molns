@@ -408,7 +408,7 @@ class SSHDeploy:
             self.exec_command("sudo chown ubuntu {0}".format(self.DEFAULT_PYURDME_TEMPDIR))
             
             
-            self.exec_command("cd /usr/local/molnsutil && git pull && git checkout issue30 && sudo python setup.py install")
+            self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
             self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
 
             self.exec_command("mkdir -p .molns")
@@ -500,7 +500,7 @@ class SSHDeploy:
             self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
 
             # Update the Molnsutil package: TODO remove when molnsutil is stable
-            self.exec_command("cd /usr/local/molnsutil && git pull && git checkout issue30 && sudo python setup.py install")
+            self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
             self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
 
             self.exec_command("ipython profile create {0}".format(self.profile))
