@@ -67,6 +67,19 @@ class InstallSW:
             "echo 'ServerAliveInterval 60' >> /home/ubuntu/.ssh/config",
         ],
                     
+        # For the smart workflow
+        [
+            "sudo pip install sklearn",
+            "sudo pip install tsfresh",
+            "sudo rm -rf /usr/local/mio;sudo mkdir -p /usr/local/mio;sudo chown ubuntu /usr/local/mio",
+            "cd /usr/local/ && git clone https://bitbucket.org/prashant_singh/mio.git",
+            "cd /usr/local/mio && sudo python setup.py install",
+            "sudo rm -rf /usr/local/GPflowOpt;sudo mkdir -p /usr/local/GPflowOpt;sudo chown ubuntu /usr/local/GPflowOpt",
+            "cd /usr/local/ && git clone https://github.com/GPflow/GPflowOpt.git",
+            "cd /usr/local/GPflowOpt && sudo pip install . --process-dependency-links",
+                     
+        ],
+                    
         # IPython
         [   "sudo rm -rf ipython;git clone --recursive https://github.com/Molns/ipython.git",
             "cd ipython && git checkout 3.0.0-molns_fixes && python setup.py submodule && sudo python setup.py install",
