@@ -77,38 +77,6 @@ class InstallSW:
         ],
                     
                     
-        # FeniCS/Dolfin/pyurdme
-        [   "sudo add-apt-repository -y ppa:fenics-packages/fenics",
-            "sudo apt-get update",
-            "sudo apt-get -y install fenics",
-            # Gmsh for Finite Element meshes
-            "sudo apt-get install -y gmsh",
-        ],
-        
-        # pyurdme
-        [   "sudo rm -rf /usr/local/pyurdme;sudo mkdir -p /usr/local/pyurdme;sudo chown ubuntu /usr/local/pyurdme",
-            "cd /usr/local/ && git clone https://github.com/ahellander/pyurdme.git",
-            "cd /usr/local/pyurdme && git checkout rdsim_recompilation",  # for development only
-            "cd /usr/local/pyurdme && make -f pyurdme/urdme/build/Makefile.nsm2 URDME_ROOT=pyurdme/urdme",
-            "mkdir -p /usr/local/pyurdme/pyurdme/urdme/bin",
-            "cp /usr/local/pyurdme/pyurdme/urdme/{build/nsm2/solver.nsm2,bin}",
-            "rm -r /usr/local/pyurdme/pyurdme/urdme/build/nsm2",
-            "cp /usr/local/pyurdme/pyurdme/data/three.js_templates/js/* .ipython/profile_default/static/custom/",
-            "source /usr/local/pyurdme/pyurdme_init && python -c 'import pyurdme'",
-        ],
-                    
-        # example notebooks
-        [  "rm -rf MOLNS_notebooks;git clone https://github.com/Molns/MOLNS_notebooks.git",
-            "cp MOLNS_notebooks/*.ipynb .;rm -rf MOLNS_notebooks;",
-            "ls *.ipynb"
-        ],
-                    
-        # Upgrade scipy from pip to get rid of super-annoying six.py bug on Trusty
-        #"sudo apt-get -y remove python-scipy",
-        "sudo pip install --upgrade scipy",
-        "sudo pip install --upgrade numpy",
-        "sudo pip install jsonschema jsonpointer",  #redo this install to be sure it has not been removed.
-
         ## Install StochSS and GillesPy
         [
         "sudo apt-get -y install nginx",

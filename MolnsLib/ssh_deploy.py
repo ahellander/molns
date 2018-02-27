@@ -409,7 +409,7 @@ class SSHDeploy:
             
             
             self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
-            self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
+            #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
 
             self.exec_command("mkdir -p .molns")
             self.create_s3_config()
@@ -501,7 +501,7 @@ class SSHDeploy:
 
             # Update the Molnsutil package: TODO remove when molnsutil is stable
             self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
-            self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
+            #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
 
             self.exec_command("ipython profile create {0}".format(self.profile))
             self.create_engine_config()
