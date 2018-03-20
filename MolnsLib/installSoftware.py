@@ -40,7 +40,7 @@ class InstallSW:
         "sudo pip install dill cloud pygments",
         "sudo pip install tornado Jinja2",
         "sudo pip install retrying",
-                  
+        
         # Molnsutil
         [
             "sudo pip install jsonschema jsonpointer",
@@ -88,7 +88,6 @@ class InstallSW:
             "sudo pip install terminado",  #Jupyter terminals
             "python -c \"from IPython.external import mathjax; mathjax.install_mathjax(tag='2.2.0')\""
         ],
-                    
                     
         ## Install StochSS and GillesPy
         [

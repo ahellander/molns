@@ -418,7 +418,7 @@ class SSHDeploy:
             self.exec_command("ipython profile create {0}".format(self.profile))
             self.create_ipython_config(ip_address, notebook_password)
             self.create_engine_config()
-            self.exec_command("source /usr/local/pyurdme/pyurdme_init; screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(ip_address, self.profile, self.ipython_port), '\n')
+            self.exec_command("screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(ip_address, self.profile, self.ipython_port), '\n')
             # Start one ipengine per processor
 
             import time
@@ -427,8 +427,8 @@ class SSHDeploy:
             num_procs = self.get_number_processors()
             num_engines = 0
             for _ in range(num_engines):
-                self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipengine --profile={0} --debug".format(self.profile, self.ipengine_env))
-            self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipython notebook --profile={0}".format(self.profile, self.ipengine_env))
+                self.exec_command("screen -d -m ipengine --profile={0} --debug".format(self.profile))
+            self.exec_command("screen -d -m ipython notebook --profile={0}".format(self.profile))
             self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
             #self.exec_command("sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
             self.ssh.close()
