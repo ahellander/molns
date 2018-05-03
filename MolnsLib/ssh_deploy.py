@@ -14,6 +14,9 @@ import ssl
 class SSHDeployException(Exception):
     pass
 
+controller_private_ip = "192.168.1.35"
+
+
 class SSHDeploy:
     '''
     This class is used for deploy IPython
@@ -386,6 +389,7 @@ class SSHDeploy:
     def deploy_ipython_controller(self, ip_address, notebook_password=None):
         controller_hostname =  ''
         engine_file_data = ''
+        
         try:
             print "{0}:{1}".format(ip_address, self.ssh_endpoint)
             self.connect(ip_address, self.ssh_endpoint)
@@ -407,9 +411,13 @@ class SSHDeploy:
             self.exec_command("sudo mkdir -p {0}".format(self.DEFAULT_PYURDME_TEMPDIR))
             self.exec_command("sudo chown ubuntu {0}".format(self.DEFAULT_PYURDME_TEMPDIR))
             
-            
-            self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
+            #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
             #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
+            # Update psa and mio
+            self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
+            self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
+
+
 
             self.exec_command("mkdir -p .molns")
             self.create_s3_config()
@@ -418,17 +426,21 @@ class SSHDeploy:
             self.exec_command("ipython profile create {0}".format(self.profile))
             self.create_ipython_config(ip_address, notebook_password)
             self.create_engine_config()
+            
             self.exec_command("screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(ip_address, self.profile, self.ipython_port), '\n')
+            #self.exec_command("screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(controller_private_ip, self.profile, self.ipython_port), '\n')
+            
             # Start one ipengine per processor
 
             import time
             time.sleep(10)
             
             num_procs = self.get_number_processors()
-            num_engines = 0
+            num_engines = num_procs-2
             for _ in range(num_engines):
                 self.exec_command("screen -d -m ipengine --profile={0} --debug".format(self.profile))
-            self.exec_command("screen -d -m ipython notebook --profile={0}".format(self.profile))
+            
+            self.exec_command("screen -d -m jupyter notebook --profile={0}".format(self.profile))
             self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
             #self.exec_command("sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
             self.ssh.close()
@@ -494,14 +506,19 @@ class SSHDeploy:
                 controller_keyfile.close()
                 print "Remote file {0} has {1} bytes".format(remote_file_name, sftp.stat(remote_file_name).st_size)
                 sftp.close()
-            
+                    
             self.exec_command("chmod 0600 {0}".format(remote_file_name))
             self.exec_command("mkdir -p /home/ubuntu/shared")
             self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
+            #self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controller_private_ip))
 
             # Update the Molnsutil package: TODO remove when molnsutil is stable
-            self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
+            #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
             #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
+            
+            # Update psa and mio
+            self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
+            self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
 
             self.exec_command("ipython profile create {0}".format(self.profile))
             self.create_engine_config()

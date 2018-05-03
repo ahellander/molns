@@ -29,37 +29,40 @@ class InstallSW:
         "curl http://www.ubuntu.com", # Check to make sure networking is up.
         "sudo apt-get update",
         "sudo apt-get -y install git",
-        "sudo apt-get -y install build-essential python-dev",
+        "sudo apt-get -y install build-essential python-dev python-pip",
         "sudo apt-get -y install python-setuptools",
-        "sudo apt-get -y install python-matplotlib python-numpy python-scipy",
+        
+                    #"sudo apt-get -y install python-matplotlib python-numpy python-scipy",
         "sudo apt-get -y install make",
         "sudo apt-get -y install python-software-properties",
+        "sudo apt-get -y install libxml2-dev libxslt1-dev python-dev",
         "sudo apt-get -y install cython python-h5py",
-        "sudo apt-get -y install python-pip python-dev build-essential",
-        "sudo pip install pyzmq --upgrade",
+        "sudo apt-get -y install python-tk",
+        # "sudo apt-get -y install python-pip python-dev build-essential",
+        #"sudo pip install pyzmq --upgrade",
         "sudo pip install dill cloud pygments",
-        "sudo pip install tornado Jinja2",
+        #"sudo pip install tornado Jinja2",
         "sudo pip install retrying",
         
         # Molnsutil
-        [
-            "sudo pip install jsonschema jsonpointer",
+                    #[
+                    # "sudo pip install jsonschema jsonpointer",
             # EC2/S3 and OpenStack APIs
-            "sudo pip install boto",
-            "sudo apt-get -y install pandoc",
+                    # "sudo pip install boto",
+                    #"sudo apt-get -y install pandoc",
             # This set of packages is needed for OpenStack, as molnsutil uses them for hybrid cloud deployment
-            "sudo apt-get -y install libxml2-dev libxslt1-dev python-dev",
-            "sudo pip install python-novaclient",
-            "sudo easy_install -U pip",
-            "sudo pip install python-keystoneclient",
-            "sudo pip install python-swiftclient",
-        ],
+                    #"sudo apt-get -y install libxml2-dev libxslt1-dev python-dev",
+                    # "sudo pip install python-novaclient",
+                    #"sudo easy_install -U pip",
+                    #"sudo pip install python-keystoneclient",
+                    # "sudo pip install python-swiftclient",
+                    # ],
                     
-        [
-         "sudo rm -rf /usr/local/molnsutil;sudo mkdir -p /usr/local/molnsutil;sudo chown ubuntu /usr/local/molnsutil",
-         "cd /usr/local/ && git clone https://github.com/Molns/molnsutil.git",
-         "cd /usr/local/molnsutil && git checkout issue30 && sudo python setup.py install"
-        ],
+                #[
+                    #"sudo rm -rf /usr/local/molnsutil;sudo mkdir -p /usr/local/molnsutil;sudo chown ubuntu /usr/local/molnsutil",
+                    #"cd /usr/local/ && git clone https://github.com/Molns/molnsutil.git",
+                    #"cd /usr/local/molnsutil && git checkout issue30 && sudo python setup.py install"
+                    #],
 
         # So the workers can mount the controller via SSHfs
         [   "sudo apt-get -y install sshfs",
@@ -69,6 +72,7 @@ class InstallSW:
                     
         # For the smart workflow
         [
+            #"sudo pip install numpy",
             "sudo pip install sklearn",
             "sudo pip install tsfresh",
             "sudo rm -rf /usr/local/mio;sudo mkdir -p /usr/local/mio;sudo chown ubuntu /usr/local/mio",
@@ -77,31 +81,41 @@ class InstallSW:
             "sudo rm -rf /usr/local/GPflowOpt;sudo mkdir -p /usr/local/GPflowOpt;sudo chown ubuntu /usr/local/GPflowOpt",
             "cd /usr/local/ && git clone https://github.com/GPflow/GPflowOpt.git",
             "cd /usr/local/GPflowOpt && sudo pip install . --process-dependency-links",
-                     
+            "sudo rm -rf /usr/local/psa;sudo mkdir -p /usr/local/psa;sudo chown ubuntu /usr/local/psa",
+            "cd /usr/local/ && git clone https://bitbucket.org/fwrede/psa.git",
+            "cd /usr/local/psa && git checkout workflow-parallel && sudo python setup.py install",
+        ],
+                    
+                    
+        [
+           "sudo pip install jupyter",
+           "sudo pip install ipyparallel",
+           "ipython profile create default"
         ],
                     
         # IPython
-        [   "sudo rm -rf ipython;git clone --recursive https://github.com/Molns/ipython.git",
-            "cd ipython && git checkout 3.0.0-molns_fixes && python setup.py submodule && sudo python setup.py install",
-            "sudo rm -rf ipython",
-            "ipython profile create default",
-            "sudo pip install terminado",  #Jupyter terminals
-            "python -c \"from IPython.external import mathjax; mathjax.install_mathjax(tag='2.2.0')\""
-        ],
+                    #[   "sudo rm -rf ipython;git clone --recursive https://github.com/Molns/ipython.git",
+                    # "cd ipython && git checkout 3.0.0-molns_fixes && python setup.py submodule && sudo python setup.py install",
+                    # "sudo rm -rf ipython",
+                    # "ipython profile create default",
+                    # "sudo pip install terminado",  #Jupyter terminals
+                    #"python -c \"from IPython.external import mathjax; mathjax.install_mathjax(tag='2.2.0')\""
+                    #],
                     
         ## Install StochSS and GillesPy
         [
-        "sudo apt-get -y install nginx",
-        "sudo update-rc.d -f nginx disable",
-        "sudo pip install python-libsbml",
-        "sudo apt-get install python-mysql.connector",
-        "sudo mkdir -p /usr/local/stochss/",
-        "sudo chown ubuntu /usr/local/stochss/",
-        "cd /usr/local/ && git clone --recursive https://github.com/StochSS/stochss.git",
-        "cd /usr/local/stochss && git checkout saas",
-        "cd /usr/local/stochss/ && ./run.ubuntu.sh --install --yy",
-        "sudo STOCHSS_HOME=/usr/local/stochss/ pip install https://github.com/ahellander/gillespy/tarball/issue21/",
-        "python -c 'import gillespy'"
+         
+         #"sudo apt-get -y install nginx",
+         #"sudo update-rc.d -f nginx disable",
+         "sudo pip install python-libsbml",
+         #"sudo apt-get install python-mysql.connector",
+         "sudo mkdir -p /usr/local/StochKit/",
+         "sudo chown ubuntu /usr/local/StochKit/",
+         "cd /usr/local/ && git clone https://github.com/StochSS/StochKit.git",
+         "cd /usr/local/StochKit/ && ./install.sh",
+         "sudo STOCHKIT_HOME=/usr/local/StochKit/ pip install https://github.com/ahellander/gillespy/tarball/issue21/",
+         "python -c 'import gillespy'"
+         
         ],
                     
         "sync",  # This is critial for some infrastructures.
