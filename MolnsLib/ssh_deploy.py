@@ -414,8 +414,8 @@ class SSHDeploy:
             #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
             #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
             # Update psa and mio
-            self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
-            self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
+            # self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
+            # self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
 
 
 
@@ -423,7 +423,7 @@ class SSHDeploy:
             self.create_s3_config()
 
 
-            self.exec_command("dask-scheduler")
+            self.exec_command("screen -d -m dask-scheduler")
             #self.exec_command("ipython profile create {0}".format(self.profile))
             #self.create_ipython_config(ip_address, notebook_password)
             #self.create_engine_config()
@@ -518,8 +518,8 @@ class SSHDeploy:
             #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
             
             # Update psa and mio
-            self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
-            self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
+            #self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
+            #self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
 
             #self.exec_command("ipython profile create {0}".format(self.profile))
             #self.create_engine_config()
@@ -527,7 +527,7 @@ class SSHDeploy:
             #self._put_ipython_engine_file(engine_file_data)
             # Start one ipengine per processor
             for _ in range(self.get_number_processors()):
-                self.exec_command("screen -d -m dask-worker {0}:8786".format(controler_ip)
+                self.exec_command("screen -d -m dask-worker {0}:8786".format(controler_ip))
                 #self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipengine --profile={0} --debug".format(self.profile,  self.ipengine_env))
 
             self.ssh.close()
