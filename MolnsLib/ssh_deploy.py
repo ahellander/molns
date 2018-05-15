@@ -423,11 +423,12 @@ class SSHDeploy:
             self.create_s3_config()
 
 
-            self.exec_command("ipython profile create {0}".format(self.profile))
-            self.create_ipython_config(ip_address, notebook_password)
-            self.create_engine_config()
+            self.exec_command("dask-scheduler")
+            #self.exec_command("ipython profile create {0}".format(self.profile))
+            #self.create_ipython_config(ip_address, notebook_password)
+            #self.create_engine_config()
             
-            self.exec_command("screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(ip_address, self.profile, self.ipython_port), '\n')
+            #self.exec_command("screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(ip_address, self.profile, self.ipython_port), '\n')
             #self.exec_command("screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(controller_private_ip, self.profile, self.ipython_port), '\n')
             
             # Start one ipengine per processor
@@ -438,10 +439,10 @@ class SSHDeploy:
             num_procs = self.get_number_processors()
             num_engines = num_procs-2
             for _ in range(num_engines):
-                self.exec_command("screen -d -m ipengine --profile={0} --debug".format(self.profile))
+                self.exec_command("screen -d -m dask-worker localhost:8786")
             
-            self.exec_command("screen -d -m jupyter notebook --profile={0}".format(self.profile))
-            self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
+            #self.exec_command("screen -d -m jupyter notebook --profile={0}".format(self.profile))
+            #self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
             #self.exec_command("sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
             self.ssh.close()
         except Exception as e:
@@ -520,13 +521,14 @@ class SSHDeploy:
             self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
 
-            self.exec_command("ipython profile create {0}".format(self.profile))
-            self.create_engine_config()
+            #self.exec_command("ipython profile create {0}".format(self.profile))
+            #self.create_engine_config()
             # Just write the engine_file to the engine
-            self._put_ipython_engine_file(engine_file_data)
+            #self._put_ipython_engine_file(engine_file_data)
             # Start one ipengine per processor
             for _ in range(self.get_number_processors()):
-                self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipengine --profile={0} --debug".format(self.profile,  self.ipengine_env))
+                self.exec_command("screen -d -m dask-worker {0}:8786".format(controler_ip)
+                #self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipengine --profile={0} --debug".format(self.profile,  self.ipengine_env))
 
             self.ssh.close()
 
