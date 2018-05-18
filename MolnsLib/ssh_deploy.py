@@ -424,9 +424,9 @@ class SSHDeploy:
 
 
             self.exec_command("screen -d -m dask-scheduler")
-            #self.exec_command("ipython profile create {0}".format(self.profile))
-            #self.create_ipython_config(ip_address, notebook_password)
-            #self.create_engine_config()
+            self.exec_command("ipython profile create {0}".format(self.profile))
+            self.create_ipython_config(ip_address, notebook_password)
+            self.create_engine_config()
             
             #self.exec_command("screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(ip_address, self.profile, self.ipython_port), '\n')
             #self.exec_command("screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(controller_private_ip, self.profile, self.ipython_port), '\n')
@@ -441,8 +441,8 @@ class SSHDeploy:
             for _ in range(num_engines):
                 self.exec_command("screen -d -m dask-worker localhost:8786")
             
-            #self.exec_command("screen -d -m jupyter notebook --profile={0}".format(self.profile))
-            #self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
+            self.exec_command("screen -d -m jupyter notebook --profile={0}".format(self.profile))
+            self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
             #self.exec_command("sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
             self.ssh.close()
         except Exception as e:
@@ -476,8 +476,10 @@ class SSHDeploy:
 
     def deploy_ipython_engine(self, ip_address, controler_ip, engine_file_data, controller_ssh_keyfile):
         try:
+            print "Entering deploy engine"
             print "{0}:{1}".format(ip_address, self.ssh_endpoint)
             self.connect(ip_address, self.ssh_endpoint)
+            
             
             # Setup the symlink to local scratch space
             self.exec_command("sudo mkdir -p /mnt/molnsarea")
