@@ -92,18 +92,18 @@ class SSHDeploy:
         (ssl_key, ssl_cert) = self.create_ssl_cert(self.profile_dir_server, self.username, hostname)
         remote_file_name = '%sipython_notebook_config.py' % self.profile_dir_server
         notebook_port = self.endpoint
-        sha1py = 'from IPython.lib import passwd; print passwd("%s")'
-        sha1cmd = "python -c '%s'" % sha1py
-        if notebook_password is None:
-            passwd = self.prompt_for_password()
-        else:
-            passwd = notebook_password
-        try:
-            sha1pass_out = self.exec_command(sha1cmd % passwd , verbose=False)
-            sha1pass = sha1pass_out[0].strip()
-        except Exception as e:
-            print "Failed: {0}\t{1}:{2}".format(e, hostname, self.ssh_endpoint)
-            raise e
+        #sha1py = 'from notebook.auth import passwd; print passwd("%s")'
+        #sha1cmd = "python3 -c '%s'" % sha1py
+        #if notebook_password is None:
+        #    passwd = self.prompt_for_password()
+        #else:
+        #    passwd = notebook_password
+        #try:
+        #    sha1pass_out = self.exec_command(sha1cmd % passwd , verbose=False)
+        #    sha1pass = sha1pass_out[0].strip()
+        #except Exception as e:
+        #    print "Failed: {0}\t{1}:{2}".format(e, hostname, self.ssh_endpoint)
+        #    raise e
         
         sftp = self.ssh.open_sftp()
         notebook_config_file = sftp.file(remote_file_name, 'w+')
@@ -114,7 +114,8 @@ class SSHDeploy:
                 "c.NotebookApp.keyfile =  u'%s'" % ssl_key,
                 "c.NotebookApp.ip = '*'",
                 "c.NotebookApp.open_browser = False",
-                "c.NotebookApp.password = u'%s'" % sha1pass,
+                # "c.NotebookApp.password = u'%s'" % sha1pass,
+                "c.NotebookApp.password = u'%s'" % "",
                 "c.NotebookApp.port = %d" % int(notebook_port),
                 #"c.Global.exec_lines = ['import dill', 'from IPython.utils import pickleutil', 'pickleutil.use_dill()', 'import logging','logging.getLogger(\'UFL\').setLevel(logging.ERROR)','logging.getLogger(\'FFC\').setLevel(logging.ERROR)']",
                 ]))
@@ -438,8 +439,8 @@ class SSHDeploy:
             
             num_procs = self.get_number_processors()
             num_engines = num_procs-2
-            for _ in range(num_engines):
-                self.exec_command("screen -d -m dask-worker localhost:8786")
+                #for _ in range(num_engines):
+                #self.exec_command("screen -d -m dask-worker localhost:8786")
             
             self.exec_command("screen -d -m jupyter notebook --profile={0}".format(self.profile))
             self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
@@ -528,8 +529,8 @@ class SSHDeploy:
             # Just write the engine_file to the engine
             #self._put_ipython_engine_file(engine_file_data)
             # Start one ipengine per processor
-            for _ in range(self.get_number_processors()):
-                self.exec_command("screen -d -m dask-worker {0}:8786".format(controler_ip))
+            #for _ in range(self.get_number_processors()):
+            self.exec_command("screen -d -m dask-worker {0}:8786".format(controler_ip))
                 #self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipengine --profile={0} --debug".format(self.profile,  self.ipengine_env))
 
             self.ssh.close()

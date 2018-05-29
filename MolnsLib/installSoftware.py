@@ -32,6 +32,7 @@ class InstallSW:
         "sudo apt-get -y install build-essential python-dev python-pip",
         "sudo apt-get -y install python3-dev python3-pip",
         "sudo pip3 install dask[complete]",
+        "sudo pip3 install bokeh",
 
         "sudo apt-get -y install python-setuptools",
         
@@ -51,8 +52,8 @@ class InstallSW:
                     
                     
         [
-           "sudo pip install jupyter",
-           "sudo pip install ipyparallel",
+           "sudo pip3 install jupyter",
+           "sudo pip3 install ipyparallel",
            "ipython profile create default"
         ],
           
