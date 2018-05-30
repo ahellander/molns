@@ -30,6 +30,7 @@ class InstallSW:
         "sudo apt-get update",
         "sudo apt-get -y install git",
         "sudo apt-get -y install build-essential python-dev python-pip",
+        "sudo apt-get -y install cmake gsl-bin libgsl0-dev",
         "sudo apt-get -y install python3-dev python3-pip",
         "sudo pip3 install dask[complete]",
         "sudo pip3 install bokeh",
@@ -42,6 +43,7 @@ class InstallSW:
         "sudo apt-get -y install cython python-h5py",
         "sudo apt-get -y install python-tk",
         "sudo pip3 install retrying",
+        "sudo pip3 install bokeh",
         
 
         # So the workers can mount the controller via SSHfs
@@ -59,8 +61,10 @@ class InstallSW:
           
         # Ochestral
         [
-          "git clone https://ahellander@bitbucket.org/Aratz/orchestral.git",
-          "git clone https://github.com/Aratz/modern_egfrd.git && cd modern_egfrd && git checkout orchestral"
+          "git clone https://ahellander@bitbucket.org/Aratz/orchestral.git && cd orchestral && git checkout perf_distributed",
+          "cd orchestral && git clone https://github.com/Aratz/modern_egfrd.git && cd modern_egfrd && git checkout orchestral",
+          "mkdir orchestral/modern_egfrd/build",
+          "cd orchestral/modern_egfrd/build && cmake -DCMAKE_BUILD_TYPE=Release .. && make RunGfrd",
         ],
                     
                     
