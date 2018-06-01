@@ -417,6 +417,8 @@ class SSHDeploy:
             # Update psa and mio
             # self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             # self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
+            self.exec_command("cd /home/ubuntu/orchestral && git checkout perf_distributed && git pull origin perf_distributed")
+
 
 
 
@@ -496,7 +498,7 @@ class SSHDeploy:
             # Setup config for object store
             self.exec_command("mkdir -p .molns")
             self.create_s3_config()
-            
+        
             
             # SSH mount the controller on each engine
             
@@ -523,6 +525,8 @@ class SSHDeploy:
             # Update psa and mio
             #self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             #self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
+            self.exec_command("cd /home/ubuntu/orchestral && git checkout perf_distributed && git pull origin perf_distributed")
+
 
             #self.exec_command("ipython profile create {0}".format(self.profile))
             #self.create_engine_config()
