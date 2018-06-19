@@ -14,8 +14,10 @@ import ssl
 class SSHDeployException(Exception):
     pass
 
-controller_private_ip = "192.168.1.35"
 
+# To use private IPs to communicate it is necessary to give the private IP of the controller/master node
+controller_private_ip = None
+#controller_private_ip = "192.168.1.7"
 
 class SSHDeploy:
     '''
@@ -417,7 +419,7 @@ class SSHDeploy:
             # Update psa and mio
             # self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             # self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
-            self.exec_command("cd /home/ubuntu/orchestral && git checkout perf_distributed && git pull origin perf_distributed")
+            self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
 
 
 
@@ -515,8 +517,14 @@ class SSHDeploy:
                     
             self.exec_command("chmod 0600 {0}".format(remote_file_name))
             self.exec_command("mkdir -p /home/ubuntu/shared")
-            self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
-            #self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controller_private_ip))
+            
+            
+            #self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
+            
+            if controller_private_ip != None:
+                self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controller_private_ip))
+            else:
+                self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
 
             # Update the Molnsutil package: TODO remove when molnsutil is stable
             #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
@@ -525,7 +533,7 @@ class SSHDeploy:
             # Update psa and mio
             #self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             #self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
-            self.exec_command("cd /home/ubuntu/orchestral && git checkout perf_distributed && git pull origin perf_distributed")
+            self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
 
 
             #self.exec_command("ipython profile create {0}".format(self.profile))
@@ -534,8 +542,13 @@ class SSHDeploy:
             #self._put_ipython_engine_file(engine_file_data)
             # Start one ipengine per processor
             #for _ in range(self.get_number_processors()):
-            self.exec_command("screen -d -m dask-worker {0}:8786".format(controler_ip))
-                #self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipengine --profile={0} --debug".format(self.profile,  self.ipengine_env))
+            num_proc = self.get_number_processors()
+            #self.exec_command("screen -d -m dask-worker {0}:8786 --nprocs {1}".format(controller_private_ip,num_proc-1))
+            if controller_private_ip != None:
+                self.exec_command("screen -d -m dask-worker {0}:8786".format(controller_private_ip))
+            else:
+                self.exec_command("screen -d -m dask-worker {0}:8786".format(controler_ip))
+
 
             self.ssh.close()
 
