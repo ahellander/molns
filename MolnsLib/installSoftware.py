@@ -34,9 +34,7 @@ class InstallSW:
         "sudo apt-get -y install python3-dev python3-pip",
         "sudo pip3 install dask[complete]",
         "sudo pip3 install bokeh",
-
         "sudo apt-get -y install python-setuptools",
-        
         #"sudo apt-get -y install python-matplotlib python-numpy python-scipy",
         "sudo apt-get -y install make",
         "sudo apt-get -y install python-software-properties",
@@ -51,7 +49,6 @@ class InstallSW:
          #  "sudo gpasswd -a ubuntu fuse",
             "echo 'ServerAliveInterval 60' >> /home/ubuntu/.ssh/config",
         ],
-                    
                     
         [
            "sudo pip3 install jupyter",
