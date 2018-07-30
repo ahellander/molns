@@ -35,14 +35,21 @@ class InstallSW:
         "sudo pip3 install dask[complete]",
         "sudo pip3 install bokeh",
         "sudo apt-get -y install python-setuptools",
-        #"sudo apt-get -y install python-matplotlib python-numpy python-scipy",
         "sudo apt-get -y install make",
         "sudo apt-get -y install python-software-properties",
         "sudo apt-get -y install cython python-h5py",
         "sudo apt-get -y install python-tk",
         "sudo pip3 install retrying",
         "sudo pip3 install bokeh",
-        
+                    
+        # FEniCS
+        [
+         "sudo apt-get install software-properties-common",
+         "sudo add-apt-repository ppa:fenics-packages/fenics",
+         "sudo apt-get update",
+         "sudo apt-get install --no-install-recommends fenics"
+        ],
+
 
         # So the workers can mount the controller via SSHfs
         [   "sudo apt-get -y install sshfs",
@@ -58,7 +65,7 @@ class InstallSW:
           
         # Ochestral
         [
-          "git clone https://ahellander@bitbucket.org/Aratz/orchestral.git && cd orchestral && git checkout perf_distributed",
+          "git clone https://ahellander@bitbucket.org/Aratz/orchestral.git && cd orchestral && git checkout DLCM_cloud",
           "cd orchestral && git clone https://github.com/Aratz/modern_egfrd.git && cd modern_egfrd && git checkout orchestral",
           "mkdir orchestral/modern_egfrd/build",
           "cd orchestral/modern_egfrd/build && cmake -DCMAKE_BUILD_TYPE=Release .. && make RunGfrd",
