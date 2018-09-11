@@ -72,7 +72,6 @@ class InstallSW:
                     
         # For the smart workflow
         [
-            #"sudo pip install numpy",
             "sudo pip install sklearn",
             "sudo pip install tsfresh",
             "sudo rm -rf /usr/local/mio;sudo mkdir -p /usr/local/mio;sudo chown ubuntu /usr/local/mio",
