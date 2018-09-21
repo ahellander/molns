@@ -414,7 +414,7 @@ class SSHDeploy:
             #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
             #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
             # Update psa and mio
-            self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
+            self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
             self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
 
 
@@ -517,7 +517,7 @@ class SSHDeploy:
             #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
             
             # Update psa and mio
-            self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
+            self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
             self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
 
             self.exec_command("ipython profile create {0}".format(self.profile))

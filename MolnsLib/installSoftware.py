@@ -82,7 +82,7 @@ class InstallSW:
             "cd /usr/local/GPflowOpt && sudo pip install . --process-dependency-links",
             "sudo rm -rf /usr/local/psa;sudo mkdir -p /usr/local/psa;sudo chown ubuntu /usr/local/psa",
             "cd /usr/local/ && git clone https://bitbucket.org/fwrede/psa.git",
-            "cd /usr/local/psa && git checkout workflow-parallel && sudo python setup.py install",
+            "cd /usr/local/psa && git checkout generalize-model && sudo python setup.py install",
         ],
                     
                     
