@@ -874,7 +874,8 @@ class MOLNSWorkerGroup(MOLNSbase):
             # deploying
             controller_ssh = SSHDeploy(config=worker_obj.controller.provider, config_dir=config.config_dir)
             engine_ssh = SSHDeploy(config=worker_obj.provider, config_dir=config.config_dir)
-            engine_file = controller_ssh.get_ipython_engine_file(controller_ip)
+            #engine_file = controller_ssh.get_ipython_engine_file(controller_ip)
+            engine_file = ""
             controller_ssh_keyfile = worker_obj.controller.provider.sshkeyfilename()
             if len(inst_to_deploy) > 1:
                 logging.debug("__launch_worker__deploy_engines() workpool(size={0})".format(len(inst_to_deploy)))

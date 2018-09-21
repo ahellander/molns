@@ -14,8 +14,10 @@ import ssl
 class SSHDeployException(Exception):
     pass
 
-controller_private_ip = "192.168.1.35"
 
+# To use private IPs to communicate it is necessary to give the private IP of the controller/master node
+controller_private_ip = None
+#controller_private_ip = "192.168.1.7"
 
 class SSHDeploy:
     '''
@@ -92,18 +94,18 @@ class SSHDeploy:
         (ssl_key, ssl_cert) = self.create_ssl_cert(self.profile_dir_server, self.username, hostname)
         remote_file_name = '%sipython_notebook_config.py' % self.profile_dir_server
         notebook_port = self.endpoint
-        sha1py = 'from IPython.lib import passwd; print passwd("%s")'
-        sha1cmd = "python -c '%s'" % sha1py
-        if notebook_password is None:
-            passwd = self.prompt_for_password()
-        else:
-            passwd = notebook_password
-        try:
-            sha1pass_out = self.exec_command(sha1cmd % passwd , verbose=False)
-            sha1pass = sha1pass_out[0].strip()
-        except Exception as e:
-            print "Failed: {0}\t{1}:{2}".format(e, hostname, self.ssh_endpoint)
-            raise e
+        #sha1py = 'from notebook.auth import passwd; print passwd("%s")'
+        #sha1cmd = "python3 -c '%s'" % sha1py
+        #if notebook_password is None:
+        #    passwd = self.prompt_for_password()
+        #else:
+        #    passwd = notebook_password
+        #try:
+        #    sha1pass_out = self.exec_command(sha1cmd % passwd , verbose=False)
+        #    sha1pass = sha1pass_out[0].strip()
+        #except Exception as e:
+        #    print "Failed: {0}\t{1}:{2}".format(e, hostname, self.ssh_endpoint)
+        #    raise e
         
         sftp = self.ssh.open_sftp()
         notebook_config_file = sftp.file(remote_file_name, 'w+')
@@ -114,7 +116,8 @@ class SSHDeploy:
                 "c.NotebookApp.keyfile =  u'%s'" % ssl_key,
                 "c.NotebookApp.ip = '*'",
                 "c.NotebookApp.open_browser = False",
-                "c.NotebookApp.password = u'%s'" % sha1pass,
+                # "c.NotebookApp.password = u'%s'" % sha1pass,
+                "c.NotebookApp.password = u'%s'" % "",
                 "c.NotebookApp.port = %d" % int(notebook_port),
                 #"c.Global.exec_lines = ['import dill', 'from IPython.utils import pickleutil', 'pickleutil.use_dill()', 'import logging','logging.getLogger(\'UFL\').setLevel(logging.ERROR)','logging.getLogger(\'FFC\').setLevel(logging.ERROR)']",
                 ]))
@@ -416,6 +419,9 @@ class SSHDeploy:
             # Update psa and mio
             self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
             self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
+            # self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
+            # self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
+            self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
 
 
 
@@ -423,11 +429,12 @@ class SSHDeploy:
             self.create_s3_config()
 
 
+            self.exec_command("screen -d -m dask-scheduler")
             self.exec_command("ipython profile create {0}".format(self.profile))
             self.create_ipython_config(ip_address, notebook_password)
             self.create_engine_config()
             
-            self.exec_command("screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(ip_address, self.profile, self.ipython_port), '\n')
+            #self.exec_command("screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(ip_address, self.profile, self.ipython_port), '\n')
             #self.exec_command("screen -d -m ipcontroller --profile={1} --ip='*' --location={0} --port={2} --log-to-file".format(controller_private_ip, self.profile, self.ipython_port), '\n')
             
             # Start one ipengine per processor
@@ -437,8 +444,8 @@ class SSHDeploy:
             
             num_procs = self.get_number_processors()
             num_engines = num_procs-2
-            for _ in range(num_engines):
-                self.exec_command("screen -d -m ipengine --profile={0} --debug".format(self.profile))
+                #for _ in range(num_engines):
+                #self.exec_command("screen -d -m dask-worker localhost:8786")
             
             self.exec_command("screen -d -m jupyter notebook --profile={0}".format(self.profile))
             self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
@@ -475,8 +482,10 @@ class SSHDeploy:
 
     def deploy_ipython_engine(self, ip_address, controler_ip, engine_file_data, controller_ssh_keyfile):
         try:
+            print "Entering deploy engine"
             print "{0}:{1}".format(ip_address, self.ssh_endpoint)
             self.connect(ip_address, self.ssh_endpoint)
+            
             
             # Setup the symlink to local scratch space
             self.exec_command("sudo mkdir -p /mnt/molnsarea")
@@ -492,7 +501,7 @@ class SSHDeploy:
             # Setup config for object store
             self.exec_command("mkdir -p .molns")
             self.create_s3_config()
-            
+        
             
             # SSH mount the controller on each engine
             
@@ -509,24 +518,41 @@ class SSHDeploy:
                     
             self.exec_command("chmod 0600 {0}".format(remote_file_name))
             self.exec_command("mkdir -p /home/ubuntu/shared")
-            self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
-            #self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controller_private_ip))
+            
+            
+            #self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
+            
+            if controller_private_ip != None:
+                self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controller_private_ip))
+            else:
+                self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
 
             # Update the Molnsutil package: TODO remove when molnsutil is stable
             #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
             #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
             
             # Update psa and mio
+
             self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
             self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
+            #self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
+            #self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
+            self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
 
-            self.exec_command("ipython profile create {0}".format(self.profile))
-            self.create_engine_config()
+
+            #self.exec_command("ipython profile create {0}".format(self.profile))
+            #self.create_engine_config()
             # Just write the engine_file to the engine
-            self._put_ipython_engine_file(engine_file_data)
+            #self._put_ipython_engine_file(engine_file_data)
             # Start one ipengine per processor
-            for _ in range(self.get_number_processors()):
-                self.exec_command("{1}source /usr/local/pyurdme/pyurdme_init; screen -d -m ipengine --profile={0} --debug".format(self.profile,  self.ipengine_env))
+            #for _ in range(self.get_number_processors()):
+            num_proc = self.get_number_processors()
+            #self.exec_command("screen -d -m dask-worker {0}:8786 --nprocs {1}".format(controller_private_ip,num_proc-1))
+            if controller_private_ip != None:
+                self.exec_command("screen -d -m dask-worker {0}:8786".format(controller_private_ip))
+            else:
+                self.exec_command("screen -d -m dask-worker {0}:8786".format(controler_ip))
+
 
             self.ssh.close()
 
