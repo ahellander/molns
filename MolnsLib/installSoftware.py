@@ -71,11 +71,13 @@ class InstallSW:
             "cd /usr/local/psa && git checkout generalize-model && sudo python setup.py install",
         ],
                     
+        # Jupyter notebook, python2 and python3 kernels
         [
-           "sudo pip install jupyter",
-           "sudo pip install ipyparallel",
-        #   "sudo python2 -m pip install ipykernel",
-        #   "sudo python2 -m ipykernel install --user",
+           "sudo pip3 install jupyter",
+           "sudo pip3 install ipyparallel",
+           "sudo pip install --upgrade pip",
+           "sudo python2 -m pip install ipykernel",
+           "sudo python2 -m ipykernel install",
            "ipython profile create default"
         ],
           

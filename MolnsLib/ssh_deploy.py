@@ -114,7 +114,9 @@ class SSHDeploy:
                 "c.IPKernelApp.pylab = 'inline'",
                 "c.NotebookApp.certfile = u'%s'" % ssl_cert,
                 "c.NotebookApp.keyfile =  u'%s'" % ssl_key,
-                "c.NotebookApp.ip = 'localhost'",
+                "c.NotebookApp.ip = '*'",
+                "c.NotebookApp.allow_origin='*'",
+                "c.NotebookApp.allow_remote_access=True",
                 "c.NotebookApp.open_browser = False",
                 # "c.NotebookApp.password = u'%s'" % sha1pass,
                 "c.NotebookApp.password = u'%s'" % "",
@@ -421,7 +423,7 @@ class SSHDeploy:
             self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
             # self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             # self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
-            self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
+            #self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
 
 
 
@@ -537,7 +539,7 @@ class SSHDeploy:
             self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
             #self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             #self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
-            self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
+            #self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
 
 
             #self.exec_command("ipython profile create {0}".format(self.profile))
