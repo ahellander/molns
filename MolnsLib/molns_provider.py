@@ -21,6 +21,7 @@ class ProviderBase():
         SecurityGroupRule("tcp", "8081", "8081", "0.0.0.0/0", None),
         SecurityGroupRule("tcp", "9000", "65535", "0.0.0.0/0", None),
         SecurityGroupRule("tcp", "8786", "65535", "0.0.0.0/0", None), 
+        SecurityGroupRule("tcp", "8090", "8090", "0.0.0.0/0", None),
 
     ]
     

@@ -114,7 +114,7 @@ class SSHDeploy:
                 "c.IPKernelApp.pylab = 'inline'",
                 "c.NotebookApp.certfile = u'%s'" % ssl_cert,
                 "c.NotebookApp.keyfile =  u'%s'" % ssl_key,
-                "c.NotebookApp.ip = '*'",
+                "c.NotebookApp.ip = 'localhost'",
                 "c.NotebookApp.open_browser = False",
                 # "c.NotebookApp.password = u'%s'" % sha1pass,
                 "c.NotebookApp.password = u'%s'" % "",
