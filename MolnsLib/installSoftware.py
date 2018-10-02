@@ -55,6 +55,7 @@ class InstallSW:
          #  "sudo gpasswd -a ubuntu fuse",
             "echo 'ServerAliveInterval 60' >> /home/ubuntu/.ssh/config",
         ],
+
                     
         # For the smart workflow
         [
@@ -74,11 +75,29 @@ class InstallSW:
         # Jupyter notebook, python2 and python3 kernels
         [
            "sudo pip3 install jupyter",
-           "sudo pip3 install ipyparallel",
+           #"sudo pip3 install ipyparallel",
+          
            "sudo pip install --upgrade pip",
+           "sudo pip install --upgrade matplotlib",
            "sudo python2 -m pip install ipykernel",
            "sudo python2 -m ipykernel install",
+           "sudo pip install ipyparallel",
            "ipython profile create default"
+        ],
+
+        ## Install StochSS and GillesPy
+        [
+            "sudo apt-get -y install nginx",
+            "sudo update-rc.d -f nginx disable",
+            "sudo pip install python-libsbml",
+            "sudo apt-get install python-mysql.connector",
+            "sudo mkdir -p /usr/local/stochss/",
+            "sudo chown ubuntu /usr/local/stochss/",
+            "cd /usr/local/ && git clone --recursive https://github.com/StochSS/stochss.git",
+            "cd /usr/local/stochss && git checkout saas",
+            "cd /usr/local/stochss/ && ./run.ubuntu.sh --install --yy",
+            "sudo STOCHSS_HOME=/usr/local/stochss/ pip install https://github.com/ahellander/gillespy/tarball/issue21/",
+            "python -c 'import gillespy'"
         ],
           
         # Ochestral

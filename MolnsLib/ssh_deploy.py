@@ -420,7 +420,7 @@ class SSHDeploy:
             #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
             # Update psa and mio
             self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
-            self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
+            self.exec_command("cd /usr/local/mio && git pull && sudo python setup.py install")
             # self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             # self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
             #self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
@@ -447,7 +447,7 @@ class SSHDeploy:
             num_procs = self.get_number_processors()
             num_engines = num_procs-2
                 #for _ in range(num_engines):
-                #self.exec_command("screen -d -m dask-worker localhost:8786")
+            self.exec_command("screen -d -m dask-worker localhost:8786 --nthreads={0}".format(num_engines))
             
             self.exec_command("screen -d -m jupyter notebook --profile={0}".format(self.profile))
             self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
@@ -523,7 +523,6 @@ class SSHDeploy:
             
             
             #self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controler_ip))
-            
             if controller_private_ip != None:
                 self.exec_command("sshfs -o Compression=no -o reconnect -o idmap=user -o StrictHostKeyChecking=no ubuntu@{0}:/mnt/molnsshared /home/ubuntu/shared".format(controller_private_ip))
             else:
@@ -536,7 +535,7 @@ class SSHDeploy:
             # Update psa and mio
 
             self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
-            self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
+            self.exec_command("cd /usr/local/mio && git pull && sudo python setup.py install")
             #self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             #self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
             #self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
