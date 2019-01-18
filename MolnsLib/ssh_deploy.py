@@ -421,6 +421,12 @@ class SSHDeploy:
             # Update psa and mio
             self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
             self.exec_command("cd /usr/local/mio && git pull && sudo python setup.py install")
+            self.exec_command("cd /usr/local/mio && git pull && sudo python setup.py install")
+            self.exec_command("sudo pip uninstall -y gillespy")
+            self.exec_command("sudo STOCHSS_HOME=/usr/local/stochss/ pip install https://github.com/ahellander/gillespy/tarball/issue21/")
+            self.exec_command("sudo pip install umap")
+
+
             # self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             # self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
             #self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
@@ -447,7 +453,9 @@ class SSHDeploy:
             num_procs = self.get_number_processors()
             num_engines = num_procs-2
                 #for _ in range(num_engines):
-            self.exec_command("screen -d -m dask-worker localhost:8786 --nthreads={0}".format(num_engines))
+            #self.exec_command("screen -d -m dask-worker localhost:8786"
+            #self.exec_command("screen -d -m dask-worker {0}:8786 --nprocs {1} --nthreads 1".format("localhost",num_engines))
+
             
             self.exec_command("screen -d -m jupyter notebook --profile={0}".format(self.profile))
             self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_NOTEBOOK_PORT,self.DEFAULT_PRIVATE_NOTEBOOK_PORT))
@@ -532,10 +540,13 @@ class SSHDeploy:
             #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
             #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
             
-            # Update psa and mio
-
+            # Update psa, mio and gillespy to latest development versions
             self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
             self.exec_command("cd /usr/local/mio && git pull && sudo python setup.py install")
+            self.exec_command("sudo pip uninstall -y gillespy")
+            self.exec_command("sudo STOCHSS_HOME=/usr/local/stochss/ pip install https://github.com/ahellander/gillespy/tarball/issue21/")
+            self.exec_command("sudo pip install umap")
+
             #self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             #self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")
             #self.exec_command("cd /home/ubuntu/orchestral && git pull && git checkout perf_distributed_chunk")
@@ -550,9 +561,9 @@ class SSHDeploy:
             num_proc = self.get_number_processors()
             #self.exec_command("screen -d -m dask-worker {0}:8786 --nprocs {1}".format(controller_private_ip,num_proc-1))
             if controller_private_ip != None:
-                self.exec_command("screen -d -m dask-worker {0}:8786".format(controller_private_ip))
+                self.exec_command("screen -d -m dask-worker {0}:8786 --nprocs {1} --nthreads 1".format(controller_private_ip,num_proc))
             else:
-                self.exec_command("screen -d -m dask-worker {0}:8786".format(controler_ip))
+                self.exec_command("screen -d -m dask-worker {0}:8786 --nprocs {1} --nthreads 1".format(controler_ip,num_proc))
 
 
             self.ssh.close()

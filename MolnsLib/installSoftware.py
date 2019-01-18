@@ -70,6 +70,7 @@ class InstallSW:
             "sudo rm -rf /usr/local/psa;sudo mkdir -p /usr/local/psa;sudo chown ubuntu /usr/local/psa",
             "cd /usr/local/ && git clone https://bitbucket.org/fwrede/psa.git",
             "cd /usr/local/psa && git checkout generalize-model && sudo python setup.py install",
+            "sudo pip install umap"
         ],
                     
         # Jupyter notebook, python2 and python3 kernels
