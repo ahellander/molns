@@ -300,7 +300,7 @@ class SSHDeploy:
             self.exec_command("sudo mkdir -p /usr/local/molns_webroot")
             self.exec_command("sudo chown ubuntu /usr/local/molns_webroot")
             self.exec_command("git clone https://github.com/Molns/MOLNS_web_landing_page.git /usr/local/molns_webroot")
-            self.exec_multi_command("cd /usr/local/molns_webroot; python -m SimpleHTTPServer {0} > ~/.molns_webserver.log 2>&1 &".format(self.DEFAULT_PRIVATE_WEBSERVER_PORT), '\n')
+            self.exec_multi_command("cd /usr/local/molns_webroot; python3 -m SimpleHTTPServer {0} > ~/.molns_webserver.log 2>&1 &".format(self.DEFAULT_PRIVATE_WEBSERVER_PORT), '\n')
             self.exec_command("sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_WEBSERVER_PORT,self.DEFAULT_PRIVATE_WEBSERVER_PORT))
             #self.exec_command("sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport {0} -j REDIRECT --to-port {1}".format(self.DEFAULT_PUBLIC_WEBSERVER_PORT,self.DEFAULT_PRIVATE_WEBSERVER_PORT))
             self.ssh.close()
@@ -323,7 +323,7 @@ class SSHDeploy:
             raise sys.exc_info()[1], None, sys.exc_info()[2]
 
     def get_number_processors(self):
-        cmd = 'python -c "import multiprocessing;print multiprocessing.cpu_count()"'
+        cmd = 'python3 -c "import multiprocessing;print(multiprocessing.cpu_count())"'
         try:
             output = self.exec_command(cmd)[0].strip()
             return int(output)
@@ -419,12 +419,12 @@ class SSHDeploy:
             #self.exec_command("cd /usr/local/molnsutil && git pull && git checkout v3auth && sudo python setup.py install")
             #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
             # Update psa and mio
-            self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
-            self.exec_command("cd /usr/local/mio && git pull && sudo python setup.py install")
-            self.exec_command("cd /usr/local/mio && git pull && sudo python setup.py install")
-            self.exec_command("sudo pip uninstall -y gillespy")
-            self.exec_command("sudo STOCHSS_HOME=/usr/local/stochss/ pip install https://github.com/ahellander/gillespy/tarball/issue21/")
-            self.exec_command("sudo pip install umap")
+            #self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
+            #self.exec_command("cd /usr/local/mio && git pull && sudo python setup.py install")
+            self.exec_command("cd /usr/local/mio && git checkout develop && git pull && sudo python3 setup.py install")
+            #self.exec_command("sudo pip uninstall -y gillespy")
+            #self.exec_command("sudo STOCHSS_HOME=/usr/local/stochss/ pip install https://github.com/ahellander/gillespy/tarball/issue21/")
+            #self.exec_command("sudo pip install umap")
 
 
             # self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
@@ -541,11 +541,11 @@ class SSHDeploy:
             #self.exec_command("cd /usr/local/pyurdme && git pull origin rdsim_recompilation")
             
             # Update psa, mio and gillespy to latest development versions
-            self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
-            self.exec_command("cd /usr/local/mio && git pull && sudo python setup.py install")
-            self.exec_command("sudo pip uninstall -y gillespy")
-            self.exec_command("sudo STOCHSS_HOME=/usr/local/stochss/ pip install https://github.com/ahellander/gillespy/tarball/issue21/")
-            self.exec_command("sudo pip install umap")
+            #self.exec_command("cd /usr/local/psa && git pull && git checkout generalize-model && sudo python setup.py install")
+            self.exec_command("cd /usr/local/mio && git checkout develop && git pull && sudo python3 setup.py install")
+            #self.exec_command("sudo pip uninstall -y gillespy")
+            #self.exec_command("sudo STOCHSS_HOME=/usr/local/stochss/ pip install https://github.com/ahellander/gillespy/tarball/issue21/")
+            #self.exec_command("sudo pip install umap")
 
             #self.exec_command("cd /usr/local/psa && git pull && git checkout workflow-parallel && sudo python setup.py install")
             #self.exec_command("cd /usr/local/mio && git pull && git checkout issue#8 && sudo python setup.py install")

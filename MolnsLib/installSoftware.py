@@ -29,17 +29,14 @@ class InstallSW:
         "curl http://www.ubuntu.com", # Check to make sure networking is up.
         "sudo apt-get update",
         "sudo apt-get -y install git",
-        "sudo apt-get -y install build-essential python-dev python-pip",
         "sudo apt-get -y install cmake gsl-bin libgsl0-dev",
         "sudo apt-get -y install python3-dev python3-pip",
-        "sudo pip install dask[complete]",
-        "sudo pip install bokeh",
-        "sudo apt-get -y install python-setuptools",
+        "sudo pip3 install dask[complete]",
+        "sudo pip3 install bokeh",
+        "sudo apt-get -y install python3-setuptools",
         "sudo apt-get -y install make",
-        "sudo apt-get -y install python-software-properties",
-        "sudo apt-get -y install cython python-h5py",
-        "sudo apt-get -y install python-tk",
         "sudo pip3 install retrying",
+        "sudo pip3 install matplotlib",
                     
         # FEniCS
         #[
@@ -59,46 +56,30 @@ class InstallSW:
                     
         # For the smart workflow
         [
-            "sudo pip install sklearn",
-            "sudo pip install tsfresh",
-            "sudo rm -rf /usr/local/mio;sudo mkdir -p /usr/local/mio;sudo chown ubuntu /usr/local/mio",
-            "cd /usr/local/ && git clone https://bitbucket.org/prashant_singh/mio.git",
-            "cd /usr/local/mio && sudo python setup.py install",
+            "sudo pip3 install sklearn",
+            "sudo pip3 install tsfresh",
             "sudo rm -rf /usr/local/GPflowOpt;sudo mkdir -p /usr/local/GPflowOpt;sudo chown ubuntu /usr/local/GPflowOpt",
             "cd /usr/local/ && git clone https://github.com/GPflow/GPflowOpt.git",
-            "cd /usr/local/GPflowOpt && sudo pip install . --process-dependency-links",
-            "sudo rm -rf /usr/local/psa;sudo mkdir -p /usr/local/psa;sudo chown ubuntu /usr/local/psa",
-            "cd /usr/local/ && git clone https://bitbucket.org/fwrede/psa.git",
-            "cd /usr/local/psa && git checkout generalize-model && sudo python setup.py install",
-            "sudo pip install umap"
+            "cd /usr/local/GPflowOpt && sudo pip3 install . --process-dependency-links",
+            "sudo rm -rf /usr/local/mio;sudo mkdir -p /usr/local/mio;sudo chown ubuntu /usr/local/mio",
+            "cd /usr/local/ && git clone https://bitbucket.org/prashant_singh/mio.git",
+            "cd /usr/local/mio && sudo python3 setup.py install"
         ],
                     
         # Jupyter notebook, python2 and python3 kernels
         [
-           "sudo pip3 install jupyter",
-           #"sudo pip3 install ipyparallel",
-          
-           "sudo pip install --upgrade pip",
-           "sudo pip install --upgrade matplotlib",
-           "sudo python2 -m pip install ipykernel",
-           "sudo python2 -m ipykernel install",
-           "sudo pip install ipyparallel",
+           "sudo pip3 install jupyter",          
            "ipython profile create default"
         ],
 
-        ## Install StochSS and GillesPy
+        ## Install StochSS and GillesPy2
         [
-            "sudo apt-get -y install nginx",
-            "sudo update-rc.d -f nginx disable",
-            "sudo pip install python-libsbml",
-            "sudo apt-get install python-mysql.connector",
-            "sudo mkdir -p /usr/local/stochss/",
-            "sudo chown ubuntu /usr/local/stochss/",
-            "cd /usr/local/ && git clone --recursive https://github.com/StochSS/stochss.git",
-            "cd /usr/local/stochss && git checkout saas",
-            "cd /usr/local/stochss/ && ./run.ubuntu.sh --install --yy",
-            "sudo STOCHSS_HOME=/usr/local/stochss/ pip install https://github.com/ahellander/gillespy/tarball/issue21/",
-            "python -c 'import gillespy'"
+
+            "sudo rm -rf /usr/local/gillespy2;sudo mkdir -p /usr/local/GillesPy2;sudo chown ubuntu /usr/local/GillesPy2",
+            "cd /usr/local/ && git clone https://github.com/Wrede/GillesPy2.git",
+            "cd /usr/local/GillesPy2 && git checkout dev_events && sudo python3 setup.py install"
+            
+            #"sudo pip3 install gillespy2"
         ],
           
         # Ochestral
